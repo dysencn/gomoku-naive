@@ -18,7 +18,7 @@ class GomokuGame {
         
         // 默认设置
         this.settings = {
-            searchDepth: 4,
+            searchDepth: 6,
             candidateCount: 10,
             searchRange: 2,
             patternWeights: {
@@ -716,7 +716,7 @@ class GomokuGame {
      */
     resetSettings() {
         this.settings = {
-            searchDepth: 4,
+            searchDepth: 6,
             candidateCount: 10,
             searchRange: 2,
             patternWeights: {
