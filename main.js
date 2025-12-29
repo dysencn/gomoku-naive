@@ -33,7 +33,7 @@ class GomokuGame {
             }
         };
 
-        this.settings = this.defaultsettings
+        this.settings = structuredClone(this.defaultsettings);
         
         // 页面元素
         this.canvas = null;
@@ -761,7 +761,7 @@ class GomokuGame {
      * 重置设置
      */
     resetSettings() {
-        this.settings = this.defaultsettings
+        this.settings = structuredClone(this.defaultsettings);
         
         this.updateSettingsUI();
         this.initAI();
