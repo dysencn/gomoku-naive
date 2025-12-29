@@ -4,26 +4,11 @@
  */
 
 class GomokuAI {
-    constructor(settings = {}) {
+    constructor(settings) {
         // 默认设置
         this.settings = {
-            searchDepth: settings.searchDepth || 6,
-            candidateCount: settings.candidateCount || 10,
-            searchRange: settings.searchRange || 2,
             boardSize: 15,
-            patternWeights: {
-                liveFive: 100000,
-                liveFour: 5000,
-                deadFour: 400,
-                liveThree: 400,
-                deadThree: 20,
-                liveTwo: 10,
-                deadTwo: 5,
-                opponentThreat: -0.8  // 对手威胁权重系数
-            },
             ...settings
-
-            
         };
         
         this.boardSize = this.settings.boardSize;

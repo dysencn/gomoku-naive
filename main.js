@@ -17,21 +17,23 @@ class GomokuGame {
         this.ai = null;
         
         // 默认设置
-        this.settings = {
+        this.defaultsettings = {
             searchDepth: 6,
             candidateCount: 10,
             searchRange: 2,
             patternWeights: {
                 liveFive: 100000,
-                liveFour: 5000,
-                deadFour: 400,
-                liveThree: 400,
-                deadThree: 20,
-                liveTwo: 10,
-                deadTwo: 5,
-                opponentThreat: -0.8
+                liveFour: 100000,
+                deadFour: 500,
+                liveThree: 1000,
+                deadThree: 100,
+                liveTwo: 100,
+                deadTwo: 10,
+                opponentThreat: 1.2
             }
         };
+
+        this.settings = this.defaultsettings
         
         // 页面元素
         this.canvas = null;
@@ -401,10 +403,30 @@ class GomokuGame {
      * 显示/隐藏思考动画
      */
     showThinkingAnimation(show) {
-        const indicator = document.getElementById('thinking-indicator');
-        if (indicator) {
-            indicator.style.display = show ? 'block' : 'none';
+    const statusLabel = document.getElementById('game-status');
+        if (!statusLabel) return;
+
+        if (show) {
+            // 1. AI 开始计算，修改文字并增加视觉效果
+            statusLabel.innerText = "AI 思考中...";
+            statusLabel.classList.add('text-orange-400', 'animate-pulse');
+        } else {
+            // 2. AI 思考结束，移除动画样式
+            statusLabel.classList.remove('text-orange-400', 'animate-pulse');
+
+            // 3. 关键点：根据当前的最新状态恢复文字
+            // 因为在 finally 执行前，makeMove 已经切换了玩家，
+            // 所以这里直接根据 this.currentPlayer 恢复即可。
+            this.renderGameStatus(); 
         }
+    }
+
+    renderGameStatus() {
+        const statusLabel = document.getElementById('game-status');
+        if (!statusLabel) return;
+
+        const playerText = this.currentPlayer === 1 ? '黑子落子' : '白子落子';
+        statusLabel.innerText = playerText;
     }
     
     /**
@@ -428,6 +450,8 @@ class GomokuGame {
         
         // 绘制棋子
         this.drawPieces(ctx, cellSize);
+
+        this.drawLastMoveMarker(ctx, cellSize);
         
         // 绘制悬停效果
         if (hoverPosition) {
@@ -438,6 +462,28 @@ class GomokuGame {
         if (this.gameOver && this.winner > 0) {
             this.drawWinningLine(ctx, cellSize);
         }
+    }
+
+    drawLastMoveMarker(ctx, cellSize) {
+        if (this.moveHistory.length === 0) return;
+
+        // 获取最后一步棋
+        const lastMove = this.moveHistory[this.moveHistory.length - 1];
+        const [row, col, player] = lastMove;
+
+        const x = (col + 1) * cellSize;
+        const y = (row + 1) * cellSize;
+
+        // 绘制红点
+        ctx.beginPath();
+        ctx.arc(x, y, cellSize * 0.15, 0, Math.PI * 2); // 半径为格子大小的10%
+        ctx.fillStyle = '#ff4d4f'; // 漂亮的亮红色
+        ctx.fill();
+
+        // 给红点加一个微小的描边，防止在黑子上看不清（可选）
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1;
+        ctx.stroke();
     }
     
     /**
@@ -715,21 +761,7 @@ class GomokuGame {
      * 重置设置
      */
     resetSettings() {
-        this.settings = {
-            searchDepth: 6,
-            candidateCount: 10,
-            searchRange: 2,
-            patternWeights: {
-                liveFive: 100000,
-                liveFour: 5000,
-                deadFour: 400,
-                liveThree: 400,
-                deadThree: 20,
-                liveTwo: 10,
-                deadTwo: 5,
-                opponentThreat: -0.8
-            }
-        };
+        this.settings = this.defaultsettings
         
         this.updateSettingsUI();
         this.initAI();
